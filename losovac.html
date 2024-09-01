@@ -135,8 +135,8 @@
         const apiKey = '5d55bf9916msha6a067a1f5b388fp1ed657jsn8f23bdf0dafd'; // Your API key
         const apiUrl = `https://instagram243.p.rapidapi.com/postcomments/${shortcode}/%7Bend_cursor%7D`;
 
-        const proxyUrl = 'https://cors-anywhere.herokuapp.com/'; // Proxy URL to bypass CORS issues
-        const finalApiUrl = proxyUrl + apiUrl;
+        const proxyUrl = 'https://corsproxy.io/?';
+        const finalApiUrl = proxyUrl + encodeURIComponent(apiUrl);
 
         document.getElementById('loader').style.display = 'block';
 
@@ -208,6 +208,7 @@
         });
     }
 </script>
+
 
 </body>
 </html>
