@@ -7,175 +7,202 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            text-align: center;
-            background: #f4f4f4;
             margin: 0;
             padding: 0;
+            background-color: #f0f0f0;
+            color: #333;
         }
-
         header {
-            background: #333;
+            background-color: #2e7d32;
+            color: white;
             padding: 10px 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            width: 100%;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
-
         .logo {
             height: 50px;
         }
-
         .container {
             padding: 20px;
+            max-width: 800px;
+            margin: auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            text-align: center;
         }
-
+        h1 {
+            color: #2e7d32;
+            margin-bottom: 20px;
+        }
         input[type="text"] {
-            width: 80%;
+            width: 100%;
             padding: 10px;
-            margin: 10px 0;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
         }
-
         button {
-            padding: 10px 20px;
-            background-color: #007bff;
+            background-color: #2e7d32;
             color: white;
             border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
             cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
         }
-
-        .comments {
+        button:hover {
+            background-color: #1b5e20;
+        }
+        #profilePic {
+            border-radius: 50%;
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
             margin-top: 20px;
         }
-
-        .comment-item {
+        #winner {
+            margin-top: 20px;
+        }
+        #winnerName {
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+        #winnerComment {
+            font-size: 1em;
+            margin-top: 10px;
+        }
+        #commentCount {
+            margin-top: 10px;
+            font-size: 1em;
+            color: #555;
+        }
+        .checkbox-label {
             display: flex;
             align-items: center;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
         }
-
-        .comment-item img {
-            border-radius: 50%;
-            height: 50px;
-            width: 50px;
+        .checkbox-label input {
             margin-right: 10px;
         }
-
-        .comment-item p {
-            margin: 0;
-        }
-
-        .winner {
-            margin-top: 20px;
-            padding: 20px;
-            background-color: #28a745;
-            color: white;
-            font-size: 1.5em;
-            border-radius: 5px;
+        #loader {
             display: none;
-        }
-
-        .total-participants {
-            margin-top: 20px;
-            font-size: 1.2em;
+            margin: 20px auto;
         }
     </style>
 </head>
 <body>
     <header>
-        <img src="https://cors-anywhere.herokuapp.com/https://henry-morgan.s15.cdn-upgates.com/_cache/8/d/8da525d15ff6975333cde32581d03e6c-logo.png" alt="Logo" class="logo" />
+        <img src="https://henry-morgan.s15.cdn-upgates.com/_cache/8/d/8da525d15ff6975333cde32581d03e6c-logo.png" alt="Logo" class="logo" />
     </header>
 
     <div class="container">
         <h1>Instagram Comment Picker</h1>
-        <input type="text" id="post-url" placeholder="Enter Instagram post URL" />
-        <button onclick="fetchComments()">Load Comments and Pick a Winner</button>
-        
-        <div class="comments" id="comments-container"></div>
-        <div class="winner" id="winner"></div>
-        <div class="total-participants" id="total-participants"></div>
+        <label for="postUrl">Enter Instagram Post URL:</label>
+        <input type="text" id="postUrl" placeholder="https://www.instagram.com/p/C--fnIYoxmI/" />
+        <br>
+        <label class="checkbox-label">
+            <input type="checkbox" id="removeDuplicates" />
+            Remove duplicate comments (one comment per user)
+        </label>
+        <br>
+        <button onclick="fetchComments()">Load Comments and Pick Winner</button>
+        <div id="loader" class="loader">Loading...</div>
+        <div id="winner" style="display:none;">
+            <img id="profilePic" src="" alt="Profile Picture" />
+            <div id="winnerName"></div>
+            <div id="winnerComment"></div>
+            <div id="commentCount"></div>
+        </div>
     </div>
 
     <script>
-        const corsProxy = 'https://cors-anywhere.herokuapp.com/';
-
         async function fetchComments() {
-            const url = document.getElementById('post-url').value;
-            const postId = extractPostId(url); // Implement extractPostId function
+            const postUrl = document.getElementById('postUrl').value;
+            const shortcode = extractShortcode(postUrl);
 
-            if (!postId) {
-                alert('Invalid URL');
+            if (!shortcode) {
+                alert('Invalid post URL.');
                 return;
             }
 
+            const apiKey = '5d55bf9916msha6a067a1f5b388fp1ed657jsn8f23bdf0dafd'; // Your API key
+            const apiUrl = `https://instagram243.p.rapidapi.com/postcomments/${shortcode}/%7Bend_cursor%7D`;
+
+            document.getElementById('loader').style.display = 'block';
+
             try {
-                const response = await fetch(`${corsProxy}https://instagram243.p.rapidapi.com/postcomments/${postId}`, {
+                const response = await fetch(apiUrl, {
                     method: 'GET',
                     headers: {
-                        'X-RapidAPI-Key': '5d55bf9916msha6a067a1f5b388fp1ed657jsn8f23bdf0dafd',
-                        'X-RapidAPI-Host': 'instagram243.p.rapidapi.com'
+                        'X-Rapidapi-Key': apiKey,
+                        'X-Rapidapi-Host': 'instagram243.p.rapidapi.com'
                     }
                 });
-                const data = await response.json();
 
-                if (data.data.comments.length === 0) {
-                    document.getElementById('comments-container').innerText = 'No comments found.';
-                    return;
+                if (!response.ok) {
+                    throw new Error('Network response was not ok ' + response.statusText);
                 }
 
-                const comments = data.data.comments;
-                const uniqueComments = getUniqueComments(comments);
+                const data = await response.json();
+                document.getElementById('loader').style.display = 'none';
 
-                displayComments(uniqueComments);
-                pickWinner(uniqueComments);
+                if (data.data && data.data.comments && data.data.comments.length > 0) {
+                    let comments = data.data.comments;
+                    const removeDuplicates = document.getElementById('removeDuplicates').checked;
 
-                document.getElementById('total-participants').innerText = `Total Participants: ${uniqueComments.length}`;
+                    if (removeDuplicates) {
+                        comments = removeDuplicateComments(comments);
+                    }
 
+                    const randomComment = comments[Math.floor(Math.random() * comments.length)];
+                    const user = randomComment.user;
+
+                    document.getElementById('profilePic').src = user.profile_pic_url || ''; // Profile Picture
+                    document.getElementById('winnerName').innerText = `Winner: ${user.username}`;
+                    document.getElementById('winnerComment').innerText = `Comment: ${randomComment.text}`;
+                    document.getElementById('commentCount').innerText = `Total participants: ${comments.length}`;
+
+                    document.getElementById('winner').style.display = 'block';
+                } else {
+                    document.getElementById('winnerName').innerText = 'No comments found.';
+                    document.getElementById('profilePic').src = '';
+                    document.getElementById('winnerComment').innerText = '';
+                    document.getElementById('commentCount').innerText = '';
+                    document.getElementById('winner').style.display = 'block';
+                }
             } catch (error) {
                 console.error('Error fetching comments:', error);
+                document.getElementById('winnerName').innerText = 'Error fetching comments.';
+                document.getElementById('profilePic').src = '';
+                document.getElementById('winnerComment').innerText = '';
+                document.getElementById('commentCount').innerText = '';
+                document.getElementById('winner').style.display = 'block';
             }
         }
 
-        function extractPostId(url) {
-            const match = url.match(/\/p\/([^\/]+)/);
+        function extractShortcode(url) {
+            const regex = /\/p\/([^\/]+)\//;
+            const match = url.match(regex);
             return match ? match[1] : null;
         }
 
-        function getUniqueComments(comments) {
-            const seen = new Set();
+        function removeDuplicateComments(comments) {
+            const seenUsers = new Set();
             return comments.filter(comment => {
-                if (seen.has(comment.user.pk)) {
+                const userId = comment.user_id;
+                if (seenUsers.has(userId)) {
                     return false;
                 }
-                seen.add(comment.user.pk);
+                seenUsers.add(userId);
                 return true;
             });
-        }
-
-        function displayComments(comments) {
-            const container = document.getElementById('comments-container');
-            container.innerHTML = '';
-
-            comments.forEach(comment => {
-                const commentItem = document.createElement('div');
-                commentItem.className = 'comment-item';
-
-                const profilePic = document.createElement('img');
-                profilePic.src = `https://cors-anywhere.herokuapp.com/${comment.user.profile_pic_url}`;
-                profilePic.alt = comment.user.username;
-
-                const commentText = document.createElement('p');
-                commentText.innerHTML = `<strong>${comment.user.username}</strong>: ${comment.text}`;
-
-                commentItem.appendChild(profilePic);
-                commentItem.appendChild(commentText);
-                container.appendChild(commentItem);
-            });
-        }
-
-        function pickWinner(comments) {
-            const randomIndex = Math.floor(Math.random() * comments.length);
-            const winner = comments[randomIndex];
-
-            const winnerDiv = document.getElementById('winner');
-            winnerDiv.innerHTML = `<strong>Congratulations ${winner.user.username}!</strong><br>Comment: "${winner.text}"`;
-            winnerDiv.style.display = 'block';
         }
     </script>
 </body>
