@@ -7,76 +7,121 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            text-align: center;
-            background-color: #f0f0f0;
-            padding: 0;
             margin: 0;
+            padding: 0;
+            background-color: #f0f0f0;
+            color: #333;
         }
-        .navbar {
-            background-color: #333;
-            padding: 10px;
+        header {
+            background-color: #2e7d32;
+            color: white;
+            padding: 10px 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            width: 100%;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
-        .navbar img {
-            max-width: 200px;
-            height: auto;
+        .logo {
+            height: 50px;
         }
         .container {
             padding: 20px;
+            max-width: 800px;
+            margin: auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        h1 {
+            color: #2e7d32;
+            margin-bottom: 20px;
         }
         input[type="text"] {
+            width: 100%;
             padding: 10px;
-            width: 80%;
-            max-width: 600px;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
         }
         button {
-            padding: 10px 20px;
-            background-color: #007BFF;
-            border: none;
+            background-color: #2e7d32;
             color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
             cursor: pointer;
-            margin-top: 10px;
+            font-size: 16px;
+            transition: background-color 0.3s;
         }
         button:hover {
-            background-color: #0056b3;
+            background-color: #1b5e20;
         }
-        .checkbox {
+        #profilePic {
+            border-radius: 50%;
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            margin-top: 20px;
+        }
+        #winner {
+            margin-top: 20px;
+        }
+        #winnerName {
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+        #winnerComment {
+            font-size: 1em;
             margin-top: 10px;
         }
-        #winner, #locationResults {
-            display: none;
-            margin-top: 20px;
+        #commentCount {
+            margin-top: 10px;
+            font-size: 1em;
+            color: #555;
+        }
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .checkbox-label input {
+            margin-right: 10px;
         }
         #loader {
             display: none;
-            margin: 20px 0;
+            margin: 20px auto;
         }
     </style>
 </head>
 <body>
-    <div class="navbar">
-        <img src="https://henry-morgan.s15.cdn-upgates.com/_cache/8/d/8da525d15ff6975333cde32581d03e6c-logo.png" alt="Logo">
-    </div>
+    <header>
+        <img src="https://henry-morgan.s15.cdn-upgates.com/_cache/8/d/8da525d15ff6975333cde32581d03e6c-logo.png" alt="Logo" class="logo" />
+    </header>
+
     <div class="container">
         <h1>Instagram Comment Picker</h1>
-        <input type="text" id="postUrl" placeholder="Enter Instagram post URL">
-        <button onclick="fetchComments()">Fetch Comments & Pick Winner</button>
-        <div class="checkbox">
-            <label><input type="checkbox" id="removeDuplicates"> Remove duplicate comments</label>
-        </div>
-        <div id="loader">Loading...</div>
-        <div id="winner">
-            <h2 id="winnerName"></h2>
-            <p id="winnerComment"></p>
-            <p id="commentCount"></p>
-        </div>
-        <h1>Instagram Location Search</h1>
-        <input type="text" id="locationSearch" placeholder="Enter location name">
-        <button onclick="searchLocation()">Search Location</button>
-        <div id="locationResults">
-            <h2>Location Results:</h2>
-            <ul id="locationList"></ul>
+        <label for="postUrl">Enter Instagram Post URL:</label>
+        <input type="text" id="postUrl" placeholder="https://www.instagram.com/p/C--fnIYoxmI/" />
+        <br>
+        <label class="checkbox-label">
+            <input type="checkbox" id="removeDuplicates" />
+            Remove duplicate comments (one comment per user)
+        </label>
+        <br>
+        <button onclick="fetchComments()">Load Comments and Pick Winner</button>
+        <div id="loader" class="loader">Loading...</div>
+        <div id="winner" style="display:none;">
+            <img id="profilePic" src="" alt="Profile Picture" />
+            <div id="winnerName"></div>
+            <div id="winnerComment"></div>
+            <div id="commentCount"></div>
         </div>
     </div>
+
     <script>
         async function fetchComments() {
             const postUrl = document.getElementById('postUrl').value;
@@ -87,16 +132,13 @@
                 return;
             }
 
-            const apiKey = '3556deb17cmshcb1ebd217afa221p1aa7f6jsna6acaeac0001'; // Updated API key
+            const apiKey = '3556deb17cmshcb1ebd217afa221p1aa7f6jsna6acaeac0001'; // Your API key
             const apiUrl = `https://instagram243.p.rapidapi.com/postcomments/${shortcode}/%7Bend_cursor%7D`;
-
-            const proxyUrl = 'https://corsproxy.io/?';
-            const finalApiUrl = proxyUrl + encodeURIComponent(apiUrl);
 
             document.getElementById('loader').style.display = 'block';
 
             try {
-                const response = await fetch(finalApiUrl, {
+                const response = await fetch(apiUrl, {
                     method: 'GET',
                     headers: {
                         'X-Rapidapi-Key': apiKey,
@@ -120,14 +162,17 @@
                     }
 
                     const randomComment = comments[Math.floor(Math.random() * comments.length)];
+                    const user = randomComment.user;
 
-                    document.getElementById('winnerName').innerText = `Winner: ${randomComment.user.username}`;
+                    document.getElementById('profilePic').src = user.profile_pic_url || ''; // Profile Picture
+                    document.getElementById('winnerName').innerText = `Winner: ${user.username}`;
                     document.getElementById('winnerComment').innerText = `Comment: ${randomComment.text}`;
                     document.getElementById('commentCount').innerText = `Total participants: ${comments.length}`;
 
                     document.getElementById('winner').style.display = 'block';
                 } else {
                     document.getElementById('winnerName').innerText = 'No comments found.';
+                    document.getElementById('profilePic').src = '';
                     document.getElementById('winnerComment').innerText = '';
                     document.getElementById('commentCount').innerText = '';
                     document.getElementById('winner').style.display = 'block';
@@ -135,57 +180,10 @@
             } catch (error) {
                 console.error('Error fetching comments:', error);
                 document.getElementById('winnerName').innerText = 'Error fetching comments.';
+                document.getElementById('profilePic').src = '';
                 document.getElementById('winnerComment').innerText = '';
                 document.getElementById('commentCount').innerText = '';
                 document.getElementById('winner').style.display = 'block';
-            }
-        }
-
-        async function searchLocation() {
-            const locationName = document.getElementById('locationSearch').value;
-            const apiKey = '3556deb17cmshcb1ebd217afa221p1aa7f6jsna6acaeac0001'; // Updated API key
-            const apiUrl = `https://instagram243.p.rapidapi.com/searchlocation/${encodeURIComponent(locationName)}`;
-
-            const proxyUrl = 'https://corsproxy.io/?';
-            const finalApiUrl = proxyUrl + encodeURIComponent(apiUrl);
-
-            document.getElementById('loader').style.display = 'block';
-
-            try {
-                const response = await fetch(finalApiUrl, {
-                    method: 'GET',
-                    headers: {
-                        'X-Rapidapi-Key': apiKey,
-                        'X-Rapidapi-Host': 'instagram243.p.rapidapi.com'
-                    }
-                });
-
-                if (!response.ok) {
-                    throw new Error('Network response was not ok ' + response.statusText);
-                }
-
-                const data = await response.json();
-                document.getElementById('loader').style.display = 'none';
-
-                const locationList = document.getElementById('locationList');
-                locationList.innerHTML = '';
-
-                if (data && data.data && data.data.length > 0) {
-                    data.data.forEach(location => {
-                        const listItem = document.createElement('li');
-                        listItem.innerText = `Location: ${location.name}, ID: ${location.id}`;
-                        locationList.appendChild(listItem);
-                    });
-
-                    document.getElementById('locationResults').style.display = 'block';
-                } else {
-                    locationList.innerHTML = '<li>No locations found.</li>';
-                    document.getElementById('locationResults').style.display = 'block';
-                }
-            } catch (error) {
-                console.error('Error fetching location:', error);
-                locationList.innerHTML = '<li>Error fetching location data.</li>';
-                document.getElementById('locationResults').style.display = 'block';
             }
         }
 
