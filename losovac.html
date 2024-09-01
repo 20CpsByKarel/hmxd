@@ -166,6 +166,14 @@
                         comments = removeDuplicateComments(comments);
                     }
 
+                    if (comments.length === 0) {
+                        document.getElementById('winnerName').innerText = 'No unique comments found.';
+                        document.getElementById('winnerComment').innerText = '';
+                        document.getElementById('commentCount').innerText = '';
+                        document.getElementById('winner').style.display = 'block';
+                        return;
+                    }
+
                     const randomComment = comments[Math.floor(Math.random() * comments.length)];
 
                     document.getElementById('winnerName').innerText = `Winner: ${randomComment.user.username}`;
