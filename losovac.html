@@ -42,16 +42,13 @@
         .checkbox {
             margin-top: 10px;
         }
-        #winner {
+        #winner, #locationResults {
             display: none;
             margin-top: 20px;
         }
         #loader {
             display: none;
             margin: 20px 0;
-        }
-        #fireworks {
-            display: none;
         }
     </style>
 </head>
@@ -72,7 +69,13 @@
             <p id="winnerComment"></p>
             <p id="commentCount"></p>
         </div>
-        <div id="fireworks"></div>
+        <h1>Instagram Location Search</h1>
+        <input type="text" id="locationSearch" placeholder="Enter location name">
+        <button onclick="searchLocation()">Search Location</button>
+        <div id="locationResults">
+            <h2>Location Results:</h2>
+            <ul id="locationList"></ul>
+        </div>
     </div>
     <script>
         async function fetchComments() {
@@ -135,6 +138,54 @@
                 document.getElementById('winnerComment').innerText = '';
                 document.getElementById('commentCount').innerText = '';
                 document.getElementById('winner').style.display = 'block';
+            }
+        }
+
+        async function searchLocation() {
+            const locationName = document.getElementById('locationSearch').value;
+            const apiKey = '3556deb17cmshcb1ebd217afa221p1aa7f6jsna6acaeac0001'; // Updated API key
+            const apiUrl = `https://instagram243.p.rapidapi.com/searchlocation/${encodeURIComponent(locationName)}`;
+
+            const proxyUrl = 'https://corsproxy.io/?';
+            const finalApiUrl = proxyUrl + encodeURIComponent(apiUrl);
+
+            document.getElementById('loader').style.display = 'block';
+
+            try {
+                const response = await fetch(finalApiUrl, {
+                    method: 'GET',
+                    headers: {
+                        'X-Rapidapi-Key': apiKey,
+                        'X-Rapidapi-Host': 'instagram243.p.rapidapi.com'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Network response was not ok ' + response.statusText);
+                }
+
+                const data = await response.json();
+                document.getElementById('loader').style.display = 'none';
+
+                const locationList = document.getElementById('locationList');
+                locationList.innerHTML = '';
+
+                if (data && data.data && data.data.length > 0) {
+                    data.data.forEach(location => {
+                        const listItem = document.createElement('li');
+                        listItem.innerText = `Location: ${location.name}, ID: ${location.id}`;
+                        locationList.appendChild(listItem);
+                    });
+
+                    document.getElementById('locationResults').style.display = 'block';
+                } else {
+                    locationList.innerHTML = '<li>No locations found.</li>';
+                    document.getElementById('locationResults').style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Error fetching location:', error);
+                locationList.innerHTML = '<li>Error fetching location data.</li>';
+                document.getElementById('locationResults').style.display = 'block';
             }
         }
 
