@@ -60,13 +60,6 @@
         button:hover {
             background-color: #1b5e20;
         }
-        #profilePic {
-            border-radius: 50%;
-            width: 100px;
-            height: 100px;
-            object-fit: cover;
-            margin-top: 20px;
-        }
         #winner {
             margin-top: 20px;
         }
@@ -95,6 +88,16 @@
             display: none;
             margin: 20px auto;
         }
+        /* Animation for fireworks */
+        .fireworks {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 1000;
+        }
     </style>
 </head>
 <body>
@@ -115,12 +118,14 @@
         <button onclick="fetchComments()">Load Comments and Pick Winner</button>
         <div id="loader" class="loader">Loading...</div>
         <div id="winner" style="display:none;">
-            <img id="profilePic" src="" alt="Profile Picture" />
             <div id="winnerName"></div>
             <div id="winnerComment"></div>
             <div id="commentCount"></div>
         </div>
     </div>
+
+    <!-- Fireworks animation -->
+    <div id="fireworks" class="fireworks"></div>
 
     <script>
         async function fetchComments() {
@@ -133,7 +138,7 @@
             }
 
             const apiKey = '3556deb17cmshcb1ebd217afa221p1aa7f6jsna6acaeac0001'; // Your API key
-            const apiUrl = `https://instagram243.p.rapidapi.com/postcomments/${shortcode}/%7Bend_cursor%7D`;
+            const apiUrl = `https://instagram-scraper-api2.p.rapidapi.com/v1/comments?code_or_id_or_url=${shortcode}`;
 
             document.getElementById('loader').style.display = 'block';
 
@@ -142,7 +147,7 @@
                     method: 'GET',
                     headers: {
                         'X-Rapidapi-Key': apiKey,
-                        'X-Rapidapi-Host': 'instagram243.p.rapidapi.com'
+                        'X-Rapidapi-Host': 'instagram-scraper-api2.p.rapidapi.com'
                     }
                 });
 
@@ -153,8 +158,8 @@
                 const data = await response.json();
                 document.getElementById('loader').style.display = 'none';
 
-                if (data.data && data.data.comments && data.data.comments.length > 0) {
-                    let comments = data.data.comments;
+                if (data.data && data.data.length > 0) {
+                    let comments = data.data;
                     const removeDuplicates = document.getElementById('removeDuplicates').checked;
 
                     if (removeDuplicates) {
@@ -162,17 +167,17 @@
                     }
 
                     const randomComment = comments[Math.floor(Math.random() * comments.length)];
-                    const user = randomComment.user;
 
-                    document.getElementById('profilePic').src = user.profile_pic_url || ''; // Profile Picture
-                    document.getElementById('winnerName').innerText = `Winner: ${user.username}`;
+                    document.getElementById('winnerName').innerText = `Winner: ${randomComment.user.username}`;
                     document.getElementById('winnerComment').innerText = `Comment: ${randomComment.text}`;
                     document.getElementById('commentCount').innerText = `Total participants: ${comments.length}`;
 
                     document.getElementById('winner').style.display = 'block';
+                    
+                    // Show fireworks animation
+                    showFireworks();
                 } else {
                     document.getElementById('winnerName').innerText = 'No comments found.';
-                    document.getElementById('profilePic').src = '';
                     document.getElementById('winnerComment').innerText = '';
                     document.getElementById('commentCount').innerText = '';
                     document.getElementById('winner').style.display = 'block';
@@ -180,7 +185,6 @@
             } catch (error) {
                 console.error('Error fetching comments:', error);
                 document.getElementById('winnerName').innerText = 'Error fetching comments.';
-                document.getElementById('profilePic').src = '';
                 document.getElementById('winnerComment').innerText = '';
                 document.getElementById('commentCount').innerText = '';
                 document.getElementById('winner').style.display = 'block';
@@ -203,6 +207,12 @@
                 seenUsers.add(userId);
                 return true;
             });
+        }
+
+        function showFireworks() {
+            const fireworks = document.getElementById('fireworks');
+            fireworks.innerHTML = '<img src="https://media.giphy.com/media/5P0sKvF2SV0D7T8xx8/giphy.gif" alt="Fireworks" style="width:100%; height:100%;" />';
+            setTimeout(() => fireworks.innerHTML = '', 3000); // Remove fireworks after 3 seconds
         }
     </script>
 </body>
