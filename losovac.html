@@ -99,19 +99,10 @@
             max-height: 300px;
             overflow-y: auto;
         }
-        /* Animation for fireworks */
-        .fireworks {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            pointer-events: none;
-            z-index: 1000;
-        }
     </style>
 </head>
 <body>
+    hgfhgf
     <header>
         <img src="https://henry-morgan.s15.cdn-upgates.com/_cache/8/d/8da525d15ff6975333cde32581d03e6c-logo.png" alt="Logo" class="logo" />
     </header>
@@ -119,7 +110,7 @@
     <div class="container">
         <h1>Instagram Comment Picker</h1>
         <label for="postUrl">Enter Instagram Post URL:</label>
-        <input type="text" id="postUrl" placeholder="https://www.instagram.com/p/C--fnIYoxmI/" />
+        <input type="text" id="postUrl" placeholder="https://www.instagram.com/p/C-8FCu9IYOm/" />
         <br>
         <label class="checkbox-label">
             <input type="checkbox" id="removeDuplicates" />
@@ -135,9 +126,6 @@
         </div>
         <div id="rawResponse"></div> <!-- Display raw API response here -->
     </div>
-
-    <!-- Fireworks animation -->
-    <div id="fireworks" class="fireworks"></div>
 
     <script>
         async function fetchComments() {
@@ -173,8 +161,8 @@
                 // Display raw response for debugging
                 document.getElementById('rawResponse').textContent = JSON.stringify(data, null, 2);
 
-                if (data.data && Array.isArray(data.data) && data.data.length > 0) {
-                    let comments = data.data;
+                if (data && data.comments && Array.isArray(data.comments) && data.comments.length > 0) {
+                    let comments = data.comments;
                     const removeDuplicates = document.getElementById('removeDuplicates').checked;
 
                     if (removeDuplicates) {
@@ -196,9 +184,6 @@
                     document.getElementById('commentCount').innerText = `Total participants: ${comments.length}`;
 
                     document.getElementById('winner').style.display = 'block';
-                    
-                    // Show fireworks animation
-                    showFireworks();
                 } else {
                     document.getElementById('winnerName').innerText = 'No comments found.';
                     document.getElementById('winnerComment').innerText = '';
@@ -230,12 +215,6 @@
                 seenUsers.add(userId);
                 return true;
             });
-        }
-
-        function showFireworks() {
-            const fireworks = document.getElementById('fireworks');
-            fireworks.innerHTML = '<img src="https://media.giphy.com/media/5P0sKvF2SV0D7T8xx8/giphy.gif" alt="Fireworks" style="width:100%; height:100%;" />';
-            setTimeout(() => fireworks.innerHTML = '', 3000); // Remove fireworks after 3 seconds
         }
     </script>
 </body>
