@@ -1,107 +1,97 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="cs">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Instagram Comments</title>
+    <title>Komentáře</title>
     <style>
-        .comment-section {
-            font-family: Arial, sans-serif;
-        }
         .comment {
-            border-bottom: 1px solid #ddd;
+            border-bottom: 1px solid #ccc;
             padding: 10px;
             display: flex;
-            align-items: flex-start;
+            align-items: center;
         }
-        .comment img {
+        .profile-pic {
             border-radius: 50%;
+            width: 50px;
+            height: 50px;
             margin-right: 10px;
         }
-        .comment .username {
+        .comment-text {
+            font-size: 14px;
+        }
+        .comment-info {
+            display: flex;
+            align-items: center;
+        }
+        .username {
             font-weight: bold;
             margin-right: 5px;
         }
-        .comment .text {
-            margin: 0;
-        }
-        .comment .like-count {
-            font-size: 0.9em;
-            color: #666;
+        .like-count {
+            margin-left: 10px;
+            color: #555;
         }
     </style>
 </head>
 <body>
-    <div id="comments-section" class="comment-section">
-        <!-- Comments will be inserted here -->
-    </div>
+    <h1>Komentáře</h1>
+    <div id="comments-container"></div>
 
     <script>
-        // Simulated API response
-        const apiResponse = {
-            "data": {
-                "count": 14,
-                "items": [
-                    {
-                        "comment_like_count": 0,
-                        "created_at": 1724605216,
-                        "text": "@yeakubko hahahaha😎😈",
-                        "user": {
-                            "profile_pic_url": "https://scontent-fra5-2.cdninstagram.com/v/t51.2885-19/432163279_817250523563527_3079114592059246468_n.jpg?stp=dst-jpg_e0_s150x150&_nc_ht=scontent-fra5-2.cdninstagram.com&_nc_cat=107&_nc_ohc=qtG2CFVfYJQQ7kNvgHLBkGz&edm=AId3EpQBAAAA&ccb=7-5&oh=00_AYDs6woFoGedKHrHsW41Nuj1liYOQtm9MaDSgltDdv_1lg&oe=66DA6286&_nc_sid=f5838a",
-                            "username": "playboi_david"
-                        }
-                    },
-                    {
-                        "comment_like_count": 1,
-                        "created_at": 1724605076,
-                        "text": "@playboi_david im the friend and never won anything🫥",
-                        "user": {
-                            "profile_pic_url": "https://scontent-fra3-1.cdninstagram.com/v/t51.2885-19/407304579_868546434944295_302635936824310096_n.jpg?stp=dst-jpg_e0_s150x150&_nc_ht=scontent-fra3-1.cdninstagram.com&_nc_cat=103&_nc_ohc=QXB94iW_G-AQ7kNvgGe1oDW&edm=AId3EpQBAAAA&ccb=7-5&oh=00_AYCE8YIyuAjaexA0bf5AqObH0ifDJLp8Iux3EpvzLMu6XQ&oe=66DA69D4&_nc_sid=f5838a",
-                            "username": "yeakubko"
-                        }
+        document.addEventListener('DOMContentLoaded', function() {
+    const commentsContainer = document.getElementById('comments-container');
+
+    // Funkce pro generování HTML pro komentáře
+    function generateCommentHTML(comment) {
+        const user = comment.user;
+        return `
+            <div class="comment">
+                <img src="${user.profile_pic_url}" alt="${user.username}'s profile picture" class="profile-pic">
+                <div class="comment-content">
+                    <div class="comment-info">
+                        <span class="username">${user.username}</span>
+                        <span class="comment-text">${comment.text}</span>
+                        <span class="like-count">Likes: ${comment.like_count}</span>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    // Mock API data
+    const apiResponse = {
+        "data": {
+            "additional_data": {
+                "caption": {
+                    "text": "How did find out about Henry Morgan?👇💚",
+                    "user": {
+                        "profile_pic_url": "https://scontent-fra3-1.cdninstagram.com/v/t51.2885-19/451735953_1200377527936515_7929548103988934467_n.jpg?stp=dst-jpg_e0_s150x150&_nc_ht=scontent-fra3-1.cdninstagram.com&_nc_cat=103&_nc_ohc=Sme-dtSaglkQ7kNvgGi5-4n&edm=AId3EpQBAAAA&ccb=7-5&oh=00_AYARxyalJHE36COTBk_CRd9CPs9KfjDThir-T4icIgVpuw&oe=66DA6C6B&_nc_sid=f5838a",
+                        "username": "henry_morgan_eu"
                     }
-                    // Add more comments here based on your data
-                ]
-            }
-        };
-
-        // Function to render comments
-        function renderComments(comments) {
-            const commentsSection = document.getElementById('comments-section');
-
-            comments.forEach(comment => {
-                const commentElement = document.createElement('div');
-                commentElement.className = 'comment';
-                
-                const profilePic = document.createElement('img');
-                profilePic.src = comment.user.profile_pic_url;
-                profilePic.alt = comment.user.username;
-                profilePic.width = 50;
-                profilePic.height = 50;
-
-                const username = document.createElement('span');
-                username.className = 'username';
-                username.textContent = comment.user.username;
-
-                const text = document.createElement('p');
-                text.className = 'text';
-                text.textContent = comment.text;
-
-                const likeCount = document.createElement('span');
-                likeCount.className = 'like-count';
-                likeCount.textContent = `${comment.comment_like_count} likes`;
-
-                commentElement.appendChild(profilePic);
-                commentElement.appendChild(username);
-                commentElement.appendChild(text);
-                commentElement.appendChild(likeCount);
-
-                commentsSection.appendChild(commentElement);
-            });
+                }
+            },
+            "count": 14,
+            "items": [
+                {
+                    "text": "@yeakubko hahahaha😎😈",
+                    "like_count": 0,
+                    "user": {
+                        "profile_pic_url": "https://scontent-fra5-2.cdninstagram.com/v/t51.2885-19/432163279_817250523563527_3079114592059246468_n.jpg?stp=dst-jpg_e0_s150x150&_nc_ht=scontent-fra5-2.cdninstagram.com&_nc_cat=107&_nc_ohc=qtG2CFVfYJQQ7kNvgHLBkGz&edm=AId3EpQBAAAA&ccb=7-5&oh=00_AYDs6woFoGedKHrHsW41Nuj1liYOQtm9MaDSgltDdv_1lg&oe=66DA6286&_nc_sid=f5838a",
+                        "username": "playboi_david"
+                    }
+                },
+                // ... zde přidejte další komentáře podle struktury
+            ]
         }
+    };
 
-        // Call the render function with the API response
-        renderComments(apiResponse.data.items);
+    // Přidání komentářů do kontejneru
+    apiResponse.data.items.forEach(comment => {
+        commentsContainer.innerHTML += generateCommentHTML(comment);
+    });
+});
+
     </script>
 </body>
 </html>
