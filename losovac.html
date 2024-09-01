@@ -3,240 +3,105 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Instagram Comment Picker</title>
+    <title>Instagram Comments</title>
     <style>
-        body {
+        .comment-section {
             font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f0f0f0;
-            color: #333;
         }
-        header {
-            background-color: #2e7d32;
-            color: white;
-            padding: 10px 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            position: sticky;
-            top: 0;
-            width: 100%;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-        }
-        .logo {
-            height: 50px;
-        }
-        .container {
-            padding: 20px;
-            max-width: 800px;
-            margin: auto;
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            text-align: center;
-        }
-        h1 {
-            color: #2e7d32;
-            margin-bottom: 20px;
-        }
-        input[type="text"] {
-            width: 100%;
+        .comment {
+            border-bottom: 1px solid #ddd;
             padding: 10px;
-            margin-bottom: 20px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-        }
-        button {
-            background-color: #2e7d32;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 16px;
-            transition: background-color 0.3s;
-        }
-        button:hover {
-            background-color: #1b5e20;
-        }
-        #winner {
-            margin-top: 20px;
-        }
-        #winnerName {
-            font-size: 1.2em;
-            font-weight: bold;
-        }
-        #winnerComment {
-            font-size: 1em;
-            margin-top: 10px;
-        }
-        #commentCount {
-            margin-top: 10px;
-            font-size: 1em;
-            color: #555;
-        }
-        .checkbox-label {
             display: flex;
-            align-items: center;
-            margin-bottom: 20px;
+            align-items: flex-start;
         }
-        .checkbox-label input {
+        .comment img {
+            border-radius: 50%;
             margin-right: 10px;
         }
-        #loader {
-            display: none;
-            margin: 20px auto;
+        .comment .username {
+            font-weight: bold;
+            margin-right: 5px;
         }
-        #rawResponse {
-            margin-top: 20px;
-            text-align: left;
-            white-space: pre-wrap;
-            background: #f5f5f5;
-            padding: 10px;
-            border-radius: 4px;
-            border: 1px solid #ddd;
-            max-height: 300px;
-            overflow-y: auto;
+        .comment .text {
+            margin: 0;
         }
-        /* Animation for fireworks */
-        .fireworks {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            pointer-events: none;
-            z-index: 1000;
+        .comment .like-count {
+            font-size: 0.9em;
+            color: #666;
         }
     </style>
 </head>
 <body>
-    <header>
-        <img src="https://henry-morgan.s15.cdn-upgates.com/_cache/8/d/8da525d15ff6975333cde32581d03e6c-logo.png" alt="Logo" class="logo" />
-    </header>
-
-    <div class="container">
-        <h1>Instagram Comment Picker</h1>
-        <label for="postUrl">Enter Instagram Post URL:</label>
-        <input type="text" id="postUrl" placeholder="https://www.instagram.com/p/C--fnIYoxmI/" />
-        <br>
-        <label class="checkbox-label">
-            <input type="checkbox" id="removeDuplicates" />
-            Remove duplicate comments (one comment per user)
-        </label>
-        <br>
-        <button onclick="fetchComments()">Load Comments and Pick Winner</button>
-        <div id="loader" class="loader">Loading...</div>
-        <div id="winner" style="display:none;">
-            <div id="winnerName"></div>
-            <div id="winnerComment"></div>
-            <div id="commentCount"></div>
-        </div>
-        <div id="rawResponse"></div> <!-- Display raw API response here -->
+    <div id="comments-section" class="comment-section">
+        <!-- Comments will be inserted here -->
     </div>
 
-    <!-- Fireworks animation -->
-    <div id="fireworks" class="fireworks"></div>
-
     <script>
-        async function fetchComments() {
-            const postUrl = document.getElementById('postUrl').value;
-            const shortcode = extractShortcode(postUrl);
-
-            if (!shortcode) {
-                alert('Invalid post URL.');
-                return;
-            }
-
-            const apiKey = '3556deb17cmshcb1ebd217afa221p1aa7f6jsna6acaeac0001'; // Your API key
-            const apiUrl = `https://instagram-scraper-api2.p.rapidapi.com/v1/comments?code_or_id_or_url=${shortcode}`;
-
-            document.getElementById('loader').style.display = 'block';
-
-            try {
-                const response = await fetch(apiUrl, {
-                    method: 'GET',
-                    headers: {
-                        'X-Rapidapi-Key': apiKey,
-                        'X-Rapidapi-Host': 'instagram-scraper-api2.p.rapidapi.com'
+        // Simulated API response
+        const apiResponse = {
+            "data": {
+                "count": 14,
+                "items": [
+                    {
+                        "comment_like_count": 0,
+                        "created_at": 1724605216,
+                        "text": "@yeakubko hahahaha😎😈",
+                        "user": {
+                            "profile_pic_url": "https://scontent-fra5-2.cdninstagram.com/v/t51.2885-19/432163279_817250523563527_3079114592059246468_n.jpg?stp=dst-jpg_e0_s150x150&_nc_ht=scontent-fra5-2.cdninstagram.com&_nc_cat=107&_nc_ohc=qtG2CFVfYJQQ7kNvgHLBkGz&edm=AId3EpQBAAAA&ccb=7-5&oh=00_AYDs6woFoGedKHrHsW41Nuj1liYOQtm9MaDSgltDdv_1lg&oe=66DA6286&_nc_sid=f5838a",
+                            "username": "playboi_david"
+                        }
+                    },
+                    {
+                        "comment_like_count": 1,
+                        "created_at": 1724605076,
+                        "text": "@playboi_david im the friend and never won anything🫥",
+                        "user": {
+                            "profile_pic_url": "https://scontent-fra3-1.cdninstagram.com/v/t51.2885-19/407304579_868546434944295_302635936824310096_n.jpg?stp=dst-jpg_e0_s150x150&_nc_ht=scontent-fra3-1.cdninstagram.com&_nc_cat=103&_nc_ohc=QXB94iW_G-AQ7kNvgGe1oDW&edm=AId3EpQBAAAA&ccb=7-5&oh=00_AYCE8YIyuAjaexA0bf5AqObH0ifDJLp8Iux3EpvzLMu6XQ&oe=66DA69D4&_nc_sid=f5838a",
+                            "username": "yeakubko"
+                        }
                     }
-                });
+                    // Add more comments here based on your data
+                ]
+            }
+        };
 
-                if (!response.ok) {
-                    throw new Error('Network response was not ok ' + response.statusText);
-                }
+        // Function to render comments
+        function renderComments(comments) {
+            const commentsSection = document.getElementById('comments-section');
 
-                const data = await response.json();
-                document.getElementById('loader').style.display = 'none';
+            comments.forEach(comment => {
+                const commentElement = document.createElement('div');
+                commentElement.className = 'comment';
                 
-                // Display raw response for debugging
-                document.getElementById('rawResponse').textContent = JSON.stringify(data, null, 2);
+                const profilePic = document.createElement('img');
+                profilePic.src = comment.user.profile_pic_url;
+                profilePic.alt = comment.user.username;
+                profilePic.width = 50;
+                profilePic.height = 50;
 
-                if (data.data && data.data.length > 0) {
-                    let comments = data.data;
-                    const removeDuplicates = document.getElementById('removeDuplicates').checked;
+                const username = document.createElement('span');
+                username.className = 'username';
+                username.textContent = comment.user.username;
 
-                    if (removeDuplicates) {
-                        comments = removeDuplicateComments(comments);
-                    }
+                const text = document.createElement('p');
+                text.className = 'text';
+                text.textContent = comment.text;
 
-                    if (comments.length === 0) {
-                        document.getElementById('winnerName').innerText = 'No unique comments found.';
-                        document.getElementById('winnerComment').innerText = '';
-                        document.getElementById('commentCount').innerText = '';
-                        document.getElementById('winner').style.display = 'block';
-                        return;
-                    }
+                const likeCount = document.createElement('span');
+                likeCount.className = 'like-count';
+                likeCount.textContent = `${comment.comment_like_count} likes`;
 
-                    const randomComment = comments[Math.floor(Math.random() * comments.length)];
+                commentElement.appendChild(profilePic);
+                commentElement.appendChild(username);
+                commentElement.appendChild(text);
+                commentElement.appendChild(likeCount);
 
-                    document.getElementById('winnerName').innerText = `Winner: ${randomComment.user.username}`;
-                    document.getElementById('winnerComment').innerText = `Comment: ${randomComment.text}`;
-                    document.getElementById('commentCount').innerText = `Total participants: ${comments.length}`;
-
-                    document.getElementById('winner').style.display = 'block';
-                    
-                    // Show fireworks animation
-                    showFireworks();
-                } else {
-                    document.getElementById('winnerName').innerText = 'No comments found.';
-                    document.getElementById('winnerComment').innerText = '';
-                    document.getElementById('commentCount').innerText = '';
-                    document.getElementById('winner').style.display = 'block';
-                }
-            } catch (error) {
-                console.error('Error fetching comments:', error);
-                document.getElementById('winnerName').innerText = 'Error fetching comments.';
-                document.getElementById('winnerComment').innerText = '';
-                document.getElementById('commentCount').innerText = '';
-                document.getElementById('winner').style.display = 'block';
-            }
-        }
-
-        function extractShortcode(url) {
-            const regex = /\/p\/([^\/]+)\//;
-            const match = url.match(regex);
-            return match ? match[1] : null;
-        }
-
-        function removeDuplicateComments(comments) {
-            const seenUsers = new Set();
-            return comments.filter(comment => {
-                const userId = comment.user_id;
-                if (seenUsers.has(userId)) {
-                    return false;
-                }
-                seenUsers.add(userId);
-                return true;
+                commentsSection.appendChild(commentElement);
             });
         }
 
-        function showFireworks() {
-            const fireworks = document.getElementById('fireworks');
-            fireworks.innerHTML = '<img src="https://media.giphy.com/media/5P0sKvF2SV0D7T8xx8/giphy.gif" alt="Fireworks" style="width:100%; height:100%;" />';
-            setTimeout(() => fireworks.innerHTML = '', 3000); // Remove fireworks after 3 seconds
-        }
+        // Call the render function with the API response
+        renderComments(apiResponse.data.items);
     </script>
 </body>
 </html>
