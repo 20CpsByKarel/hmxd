@@ -88,6 +88,17 @@
             display: none;
             margin: 20px auto;
         }
+        #rawResponse {
+            margin-top: 20px;
+            text-align: left;
+            white-space: pre-wrap;
+            background: #f5f5f5;
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            max-height: 300px;
+            overflow-y: auto;
+        }
         /* Animation for fireworks */
         .fireworks {
             position: fixed;
@@ -122,6 +133,7 @@
             <div id="winnerComment"></div>
             <div id="commentCount"></div>
         </div>
+        <div id="rawResponse"></div> <!-- Display raw API response here -->
     </div>
 
     <!-- Fireworks animation -->
@@ -157,6 +169,9 @@
 
                 const data = await response.json();
                 document.getElementById('loader').style.display = 'none';
+                
+                // Display raw response for debugging
+                document.getElementById('rawResponse').textContent = JSON.stringify(data, null, 2);
 
                 if (data.data && data.data.length > 0) {
                     let comments = data.data;
